@@ -1,17 +1,17 @@
 import tensorflow as tf
 import keras.backend as K
-from keras.engine.topology import Layer
+# from keras.engine.topology import Layer
 from keras.metrics import binary_accuracy
-from keras.layers import Input, Dense, Concatenate, BatchNormalization, Dropout
+from keras.layers import Input, Dense, Concatenate, BatchNormalization, Dropout, Layer
 from keras.models import Model
 from keras import regularizers
 
 
-def binary_classification_loss(concat_true, concat_pred):
+def binary_classification_loss(concat_true, concat_pred): # used during training to optimize model
     t_true = concat_true[:, 1]
     t_pred = concat_pred[:, 2]
-    t_pred = (t_pred + 0.001) / 1.002
-    losst = tf.reduce_sum(K.binary_crossentropy(t_true, t_pred))
+    t_pred = (t_pred + 0.001) / 1.002 # avoid log(0)
+    losst = tf.reduce_sum(K.binary_crossentropy(t_true, t_pred)) # binary cross-entropy because treatment is binary
 
     return losst
 
@@ -23,13 +23,13 @@ def regression_loss(concat_true, concat_pred):
     y0_pred = concat_pred[:, 0]
     y1_pred = concat_pred[:, 1]
 
-    loss0 = tf.reduce_sum((1. - t_true) * tf.square(y_true - y0_pred))
-    loss1 = tf.reduce_sum(t_true * tf.square(y_true - y1_pred))
+    loss0 = tf.reduce_sum((1. - t_true) * tf.square(y_true - y0_pred)) # sqrd error for control group
+    loss1 = tf.reduce_sum(t_true * tf.square(y_true - y1_pred)) #sqrd error for treatment group
 
     return loss0 + loss1
 
 
-def ned_loss(concat_true, concat_pred):
+def ned_loss(concat_true, concat_pred): # what's the difference between this and binary_classification_loss?
     t_true = concat_true[:, 1]
 
     t_pred = concat_pred[:, 1]
@@ -44,7 +44,7 @@ def dragonnet_loss_binarycross(concat_true, concat_pred):
     return regression_loss(concat_true, concat_pred) + binary_classification_loss(concat_true, concat_pred)
 
 
-def treatment_accuracy(concat_true, concat_pred):
+def treatment_accuracy(concat_true, concat_pred): # measures model performance; % of correct treatment predictions
     t_true = concat_true[:, 1]
     t_pred = concat_pred[:, 2]
     return binary_accuracy(t_true, t_pred)
