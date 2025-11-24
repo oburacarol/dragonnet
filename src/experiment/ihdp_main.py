@@ -6,7 +6,7 @@ import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import keras.backend as K
-from keras.optimizers import rmsprop, SGD, Adam
+from keras.optimizers import SGD, Adam
 from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard, ReduceLROnPlateau, TerminateOnNaN
 from experiment.idhp_data import *
 
