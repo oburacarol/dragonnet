@@ -51,12 +51,12 @@ def treatment_accuracy(concat_true, concat_pred): # measures model performance; 
 
 
 
-def track_epsilon(concat_true, concat_pred):
+def track_epsilon(concat_true, concat_pred): # absolute mean of epsilon values --> used in targeted regularization
     epsilons = concat_pred[:, 3]
     return tf.abs(tf.reduce_mean(epsilons))
 
 
-class EpsilonLayer(Layer):
+class EpsilonLayer(Layer): # custom layer to learn epsilon parameter for targeted regularization
 
     def __init__(self):
         super(EpsilonLayer, self).__init__()
@@ -74,7 +74,15 @@ class EpsilonLayer(Layer):
         # import ipdb; ipdb.set_trace()
         return self.epsilon * tf.ones_like(inputs)[:, 0:1]
 
+""" 
+Reason for nested function below:
+- Keras requires loss functions to have exactly two arguments: y_true and y_pred
+- However, we want to create a loss function that can be customized with a ratio parameter
+- Therefore, we define a function make_tarreg_loss that takes the ratio parameter and returns
+  a new loss function tarreg_ATE_unbounded_domain_loss that has the required signature.
+For future reference of an alternative approach: https://stackoverflow.com/questions/46858016/keras-custom-loss-function-to-pass-arguments-other-than-y-true-and-y-pred  
 
+"""
 def make_tarreg_loss(ratio=1., dragonnet_loss=dragonnet_loss_binarycross):
     def tarreg_ATE_unbounded_domain_loss(concat_true, concat_pred):
         vanilla_loss = dragonnet_loss(concat_true, concat_pred)
@@ -92,9 +100,9 @@ def make_tarreg_loss(ratio=1., dragonnet_loss=dragonnet_loss_binarycross):
 
         y_pred = t_true * y1_pred + (1 - t_true) * y0_pred
 
-        h = t_true / t_pred - (1 - t_true) / (1 - t_pred)
+        h = t_true / t_pred - (1 - t_true) / (1 - t_pred) # formula in the paper
 
-        y_pert = y_pred + epsilons * h
+        y_pert = y_pred + epsilons * h # perturbed prediction
         targeted_regularization = tf.reduce_sum(tf.square(y_true - y_pert))
 
         # final
@@ -116,8 +124,8 @@ def make_dragonnet(input_dim, reg_l2):
     inputs = Input(shape=(input_dim,), name='input')
 
     # representation
-    x = Dense(units=200, activation='elu', kernel_initializer='RandomNormal')(inputs)
-    x = Dense(units=200, activation='elu', kernel_initializer='RandomNormal')(x)
+    x = Dense(units=200, activation='elu', kernel_initializer='RandomNormal')(inputs) # elu = exponential linear unit
+    x = Dense(units=200, activation='elu', kernel_initializer='RandomNormal')(x) # second layer
     x = Dense(units=200, activation='elu', kernel_initializer='RandomNormal')(x)
 
 
@@ -210,18 +218,18 @@ def make_ned(input_dim, reg_l2=0.01):
     return model
 
 
-def post_cut(nednet, input_dim, reg_l2=0.01):
+def post_cut(nednet, input_dim, reg_l2=0.01): # builds model on top of frozen nednet
     for layer in nednet.layers:
         layer.trainable = False
     nednet.layers.pop()
     nednet.layers.pop()
-    nednet.layers.pop()
+    nednet.layers.pop() # remove last 3 layers (predictions)
 
     frozen = nednet
 
-    x = frozen.layers[-1].output
+    x = frozen.layers[-1].output # get output of the representation layer
     frozen.layers[-1].outbound_nodes = []
-    input = frozen.input
+    input = frozen.input # the frozen NED network's input layer that we will reuse
 
     y0_hidden = Dense(units=100, activation='elu', kernel_regularizer=regularizers.l2(reg_l2), name='post_cut_y0_1')(x)
     y1_hidden = Dense(units=100, activation='elu', kernel_regularizer=regularizers.l2(reg_l2), name='post_cut_y1_1')(x)
