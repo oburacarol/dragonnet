@@ -4,3 +4,5 @@ src/experiment/__pycache__/
 
 # egg_info
 *.egg-info/
+
+venv1/
