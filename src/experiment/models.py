@@ -11,7 +11,8 @@ def binary_classification_loss(concat_true, concat_pred): # used during training
     t_true = concat_true[:, 1]
     t_pred = concat_pred[:, 2]
     t_pred = (t_pred + 0.001) / 1.002 # avoid log(0)
-    losst = tf.reduce_sum(K.binary_crossentropy(t_true, t_pred)) # binary cross-entropy because treatment is binary
+    # simple: use tf.keras loss
+    losst = tf.reduce_sum(tf.keras.losses.binary_crossentropy(t_true, t_pred))
 
     return losst
 
