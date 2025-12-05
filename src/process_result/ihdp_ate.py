@@ -2,6 +2,7 @@ import copy
 
 from numpy import load
 
+
 from semi_parametric_estimation.ate import *
 
 
@@ -10,7 +11,7 @@ def load_truth(replication, knob):
     loading ground truth data
     """
 
-    file_path = '../../result/{}/{}/simulation_outputs.npz'.format(knob, replication)
+    file_path = 'G:/My Drive/CML_Research/Practice Code/dragonnet/co_implement/ihdp/{}/{}/simulation_outputs.npz'.format(knob, replication)
     data = load(file_path)
     mu_0 = data['mu_0']
     mu_1 = data['mu_1']
@@ -23,7 +24,7 @@ def load_data(knob='default', replication=1, model='baseline', train_test='test'
     loading train test experiment results
     """
 
-    file_path = '../../result/{}/'.format(knob)
+    file_path = 'G:/My Drive/CML_Research/Practice Code/dragonnet/co_implement/ihdp/{}/'.format(knob)
     data = load(file_path + '{}/{}/0_replication_{}.npz'.format(replication, model, train_test))
 
     return data['q_t0'].reshape(-1, 1), data['q_t1'].reshape(-1, 1), data['g'].reshape(-1, 1), \
