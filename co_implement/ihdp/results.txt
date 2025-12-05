@@ -1,0 +1,6 @@
+ted_regularization': np.float64(0.1437606514719379)}, 
+'dragonnet': {'baseline': np.float64(0.1367067241937007), 
+'targeted_regularization': np.float64(0.14781903230375565)}, 
+'nednet': {'baseline': 0, 'targeted_regularization': 0}}
+the tmle estimator result is this
+{'tarnet': {'baseline': np.float64(0.1464131901739127), 'targeted_regularization': np.float64(0.14734845190188428)}, 'dragonnet': {'baseline': np.float64(0.1345882183248332), 'targeted_regularization': np.float64(0.13996160402412536)}, 'nednet': {'baseline': 0, 'targeted_regularization': 0}}
