@@ -5,7 +5,7 @@ export PYTHONPATH="G:/My Drive/CML_Research/Practice Code/dragonnet/src"
 
 options=(
     dragonnet
-    #tarnet
+    tarnet
 
 )
 
