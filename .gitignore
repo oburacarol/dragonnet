@@ -1,0 +1,6 @@
+# pycache
+src/__pycache__/
+src/experiment/__pycache__/
+
+# egg_info
+*.egg-info/
